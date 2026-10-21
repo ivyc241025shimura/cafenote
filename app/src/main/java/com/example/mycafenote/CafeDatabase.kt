@@ -1,0 +1,45 @@
+package com.example.mycafenote
+
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+
+@Database(
+    entities = [
+        CafeEntity::class,
+        CafePhotoEntity::class
+    ],
+    version = 2,
+    exportSchema = true
+)
+abstract class CafeDatabase : RoomDatabase() {
+
+    abstract fun cafeDao(): CafeDao
+
+    abstract fun cafePhotoDao(): CafePhotoDao
+
+    companion object {
+
+        @Volatile
+        private var INSTANCE: CafeDatabase? = null
+
+        fun getDatabase(context: Context): CafeDatabase {
+
+            return INSTANCE ?: synchronized(this) {
+
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    CafeDatabase::class.java,
+                    "cafe_database"
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
+
+                INSTANCE = instance
+
+                instance
+            }
+        }
+    }
+}
